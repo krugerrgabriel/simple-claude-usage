@@ -1,0 +1,8 @@
+{
+  "uuid": "simple-claude-usage@krugerrgabriel.github.io",
+  "name": "Simple Claude Usage",
+  "description": "Your Claude plan usage, always visible in the GNOME top bar. Shows the 5-hour session and weekly limits, exactly like /usage in Claude Code.",
+  "shell-version": ["45", "46", "47", "48"],
+  "version-name": "1.0.0",
+  "url": "https://github.com/krugerrgabriel/simple-claude-usage"
+}
