@@ -3,6 +3,6 @@
   "name": "Simple Claude Usage",
   "description": "Your Claude plan usage, always visible in the GNOME top bar. Shows the 5-hour session and weekly limits, exactly like /usage in Claude Code.",
   "shell-version": ["42", "43", "44"],
-  "version-name": "1.1.0",
+  "version-name": "1.1.1",
   "url": "https://github.com/krugerrgabriel/simple-claude-usage"
 }

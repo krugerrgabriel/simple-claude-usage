@@ -70,6 +70,9 @@ class ClaudeUsageIndicator extends PanelMenu.Button {
         const msg = Soup.Message.new('GET', USAGE_URL);
         msg.request_headers.append('Authorization', `Bearer ${token}`);
         msg.request_headers.append('anthropic-beta', 'oauth-2025-04-20');
+        // Sem este User-Agent o endpoint cai num bucket de rate limit
+        // agressivo e devolve 429 persistente (anthropics/claude-code#30930)
+        msg.request_headers.replace('User-Agent', 'claude-code/2.1.172');
 
         if (SHELL_MAJOR >= 43) {
             this._http.send_and_read_async(msg, GLib.PRIORITY_DEFAULT, null, (session, result) => {
