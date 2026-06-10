@@ -49,8 +49,8 @@ class ClaudeUsageIndicator extends PanelMenu.Button {
         this._pendingTag = null;
         this._notifiedTag = null;
 
-        this._sessionItem = new PopupMenu.PopupMenuItem('Sessão (5h): —', {reactive: false});
-        this._weekItem = new PopupMenu.PopupMenuItem('Semana: —', {reactive: false});
+        this._sessionItem = new PopupMenu.PopupMenuItem('Session (5h): —', {reactive: false});
+        this._weekItem = new PopupMenu.PopupMenuItem('Week: —', {reactive: false});
         this._opusItem = new PopupMenu.PopupMenuItem('', {reactive: false});
         this._sonnetItem = new PopupMenu.PopupMenuItem('', {reactive: false});
         this._statusItem = new PopupMenu.PopupMenuItem('', {reactive: false});
@@ -64,7 +64,7 @@ class ClaudeUsageIndicator extends PanelMenu.Button {
         this.menu.addMenuItem(this._statusItem);
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 
-        const refreshItem = new PopupMenu.PopupMenuItem('Atualizar agora');
+        const refreshItem = new PopupMenu.PopupMenuItem('Refresh now');
         refreshItem.connect('activate', () => this._refresh());
         this.menu.addMenuItem(refreshItem);
 
@@ -96,16 +96,21 @@ class ClaudeUsageIndicator extends PanelMenu.Button {
         });
     }
 
-    _readToken() {
-        try {
-            const [ok, contents] = GLib.file_get_contents(CREDS_PATH);
-            if (!ok)
-                return null;
-            const creds = JSON.parse(ByteArray.toString(contents));
-            return (creds.claudeAiOauth && creds.claudeAiOauth.accessToken) || null;
-        } catch (e) {
-            return null;
-        }
+    _readToken(cb) {
+        const file = Gio.File.new_for_path(CREDS_PATH);
+        file.load_contents_async(null, (f, res) => {
+            try {
+                const [ok, contents] = f.load_contents_finish(res);
+                if (!ok) {
+                    cb(null);
+                    return;
+                }
+                const creds = JSON.parse(ByteArray.toString(contents));
+                cb((creds.claudeAiOauth && creds.claudeAiOauth.accessToken) || null);
+            } catch (e) {
+                cb(null);
+            }
+        });
     }
 
     // Runs the GET and calls cb(statusCode, bodyText) on either Soup API.
@@ -135,40 +140,41 @@ class ClaudeUsageIndicator extends PanelMenu.Button {
     }
 
     _refresh() {
-        const token = this._readToken();
-        if (!token) {
-            this._onFailure('sem login no Claude Code');
-            return;
-        }
+        this._readToken(token => {
+            if (!token) {
+                this._onFailure('not logged in to Claude Code');
+                return;
+            }
 
-        // Sem o User-Agent claude-code o endpoint cai num bucket de rate
-        // limit agressivo e devolve 429 persistente (anthropics/claude-code#30930)
-        this._fetchText(USAGE_URL, {
-            'Authorization': `Bearer ${token}`,
-            'anthropic-beta': 'oauth-2025-04-20',
-            'User-Agent': 'claude-code/2.1.172',
-        }, (status, body) => {
-            if (status === 401) {
-                // Token expirado: o Claude Code renova ao ser aberto
-                this._onFailure('token expirado — abra o Claude Code');
-                return;
-            }
-            if (status === 429) {
-                this._onFailure('limite de consultas da API');
-                return;
-            }
-            if (status !== 200 || !body) {
-                this._onFailure(status ? `HTTP ${status}` : 'sem rede');
-                return;
-            }
-            let data;
-            try {
-                data = JSON.parse(body);
-            } catch (e) {
-                this._onFailure('resposta inesperada');
-                return;
-            }
-            this._onSuccess(data);
+            // Sem o User-Agent claude-code o endpoint cai num bucket de rate
+            // limit agressivo e devolve 429 persistente (anthropics/claude-code#30930)
+            this._fetchText(USAGE_URL, {
+                'Authorization': `Bearer ${token}`,
+                'anthropic-beta': 'oauth-2025-04-20',
+                'User-Agent': 'claude-code/2.1.172',
+            }, (status, body) => {
+                if (status === 401) {
+                    // Token expirado: o Claude Code renova ao ser aberto
+                    this._onFailure('token expired — open Claude Code');
+                    return;
+                }
+                if (status === 429) {
+                    this._onFailure('API rate limited');
+                    return;
+                }
+                if (status !== 200 || !body) {
+                    this._onFailure(status ? `HTTP ${status}` : 'network error');
+                    return;
+                }
+                let data;
+                try {
+                    data = JSON.parse(body);
+                } catch (e) {
+                    this._onFailure('unexpected response');
+                    return;
+                }
+                this._onSuccess(data);
+            });
         });
     }
 
@@ -192,7 +198,7 @@ class ClaudeUsageIndicator extends PanelMenu.Button {
             this._label.set_text('✻ —');
 
         const mins = Math.max(1, Math.round(wait / 60));
-        this._statusItem.label.set_text(`⚠ ${why} · nova tentativa em ${mins} min`);
+        this._statusItem.label.set_text(`⚠ ${why} · retrying in ${mins} min`);
         this._statusItem.visible = true;
         this._scheduleNext(wait);
     }
@@ -229,12 +235,12 @@ class ClaudeUsageIndicator extends PanelMenu.Button {
     _offerUpdate(tag) {
         this._pendingTag = tag;
         this._updateState = 'available';
-        this._updateItem.label.set_text(`⬆ ${tag} disponível — clique para atualizar`);
+        this._updateItem.label.set_text(`⬆ ${tag} available — click to update`);
         this._updateItem.visible = true;
         if (this._notifiedTag !== tag) {
             this._notifiedTag = tag;
             Main.notify('Simple Claude Usage',
-                `Versão ${tag} disponível — clique no ✻ na barra para atualizar.`);
+                `Version ${tag} available — click ✻ in the top bar to update.`);
         }
     }
 
@@ -246,7 +252,7 @@ class ClaudeUsageIndicator extends PanelMenu.Button {
     }
 
     _downloadUpdate(tag) {
-        this._updateItem.label.set_text('⏳ Baixando atualização…');
+        this._updateItem.label.set_text('⏳ Downloading update…');
         const base = `https://raw.githubusercontent.com/${REPO}/${tag}/${RAW_SUBDIR}`;
 
         this._fetchText(`${base}extension.js`, {}, (jsStatus, js) => {
@@ -262,12 +268,12 @@ class ClaudeUsageIndicator extends PanelMenu.Button {
                     GLib.file_set_contents(`${this._path}/metadata.json`,
                         JSON.stringify(remoteMeta, null, 2) + '\n');
                     this._updateState = 'downloaded';
-                    this._updateItem.label.set_text('✓ Atualizado — reinicie o GNOME Shell para aplicar');
+                    this._updateItem.label.set_text('✓ Updated — restart GNOME Shell to apply');
                     Main.notify('Simple Claude Usage',
-                        `Atualizado para ${tag}. Reinicie o GNOME Shell para aplicar (X11: Alt+F2 → r).`);
+                        `Updated to ${tag}. Restart GNOME Shell to apply (X11: Alt+F2 → r).`);
                 } catch (e) {
                     this._updateState = 'failed';
-                    this._updateItem.label.set_text('⚠ Falha ao baixar — clique para abrir o GitHub');
+                    this._updateItem.label.set_text('⚠ Download failed — click to open GitHub');
                 }
             });
         });
@@ -305,19 +311,19 @@ class ClaudeUsageIndicator extends PanelMenu.Button {
             this._label.set_style(null);
 
         this._sessionItem.label.set_text(
-            `Sessão (5h): ${s !== null ? s : '—'}%  ·  reseta ${this._fmtReset(five.resets_at)}`);
+            `Session (5h): ${s !== null ? s : '—'}%  ·  resets ${this._fmtReset(five.resets_at)}`);
         this._weekItem.label.set_text(
-            `Semana: ${w !== null ? w : '—'}%  ·  reseta ${this._fmtReset(week.resets_at)}`);
+            `Week: ${w !== null ? w : '—'}%  ·  resets ${this._fmtReset(week.resets_at)}`);
 
         const opus = data.seven_day_opus ? data.seven_day_opus.utilization : null;
         this._opusItem.visible = opus !== null && opus !== undefined;
         if (this._opusItem.visible)
-            this._opusItem.label.set_text(`Opus (semana): ${pct(opus)}%`);
+            this._opusItem.label.set_text(`Opus (week): ${pct(opus)}%`);
 
         const sonnet = data.seven_day_sonnet ? data.seven_day_sonnet.utilization : null;
         this._sonnetItem.visible = sonnet !== null && sonnet !== undefined;
         if (this._sonnetItem.visible)
-            this._sonnetItem.label.set_text(`Sonnet (semana): ${pct(sonnet)}%`);
+            this._sonnetItem.label.set_text(`Sonnet (week): ${pct(sonnet)}%`);
     }
 
     destroy() {

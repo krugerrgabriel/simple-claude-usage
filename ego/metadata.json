@@ -1,0 +1,7 @@
+{
+  "uuid": "simple-claude-usage@krugerrgabriel.github.io",
+  "name": "Simple Claude Usage",
+  "description": "Your Claude plan usage, always visible in the top bar. Shows the 5-hour session and weekly limits of a Claude Pro/Max subscription — exactly like /usage in Claude Code — with color warnings at 70% and 90%. Reuses the Claude Code credentials already on your machine: no new login, no API keys, no configuration.",
+  "shell-version": ["45", "46", "47", "48"],
+  "url": "https://github.com/krugerrgabriel/simple-claude-usage"
+}
