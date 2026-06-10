@@ -16,7 +16,7 @@
 </p>
 
 <p align="center">
-  <img alt="GNOME Shell" src="https://img.shields.io/badge/GNOME%20Shell-45%20%7C%2046%20%7C%2047%20%7C%2048-4A86CF?logo=gnome&logoColor=white">
+  <img alt="GNOME Shell" src="https://img.shields.io/badge/GNOME%20Shell-42%E2%80%9348-4A86CF?logo=gnome&logoColor=white">
   <img alt="Ubuntu" src="https://img.shields.io/badge/Ubuntu-22.04%2B-E95420?logo=ubuntu&logoColor=white">
   <img alt="Zero deps" src="https://img.shields.io/badge/deps-zero-success">
   <img alt="License" src="https://img.shields.io/badge/license-MIT-blue">
@@ -57,7 +57,7 @@
 
 ## 📦 安装
 
-**要求：** GNOME Shell 45+（Ubuntu 24.04+、Fedora 39+ 等）以及已登录的 [Claude Code](https://claude.com/claude-code)。
+**要求：** GNOME Shell 42+（Ubuntu 22.04+、Fedora 36+ 等）以及已登录的 [Claude Code](https://claude.com/claude-code)。
 
 ```bash
 git clone https://github.com/krugerrgabriel/simple-claude-usage.git
@@ -94,7 +94,7 @@ cd simple-claude-usage
 暂不支持 — 目前追踪订阅限额（Pro/Max 套餐）。API 成本追踪在路线图中。
 
 **支持 KDE / 其他桌面吗？**
-不支持，这是一个 GNOME Shell 扩展。支持 GNOME 45–48。
+不支持，这是一个 GNOME Shell 扩展。支持 GNOME 42–48。
 
 **这是 Anthropic 官方项目吗？**
 不是。这是一个独立的开源工具，在本地使用你自己的凭据。

@@ -16,7 +16,7 @@
 </p>
 
 <p align="center">
-  <img alt="GNOME Shell" src="https://img.shields.io/badge/GNOME%20Shell-45%20%7C%2046%20%7C%2047%20%7C%2048-4A86CF?logo=gnome&logoColor=white">
+  <img alt="GNOME Shell" src="https://img.shields.io/badge/GNOME%20Shell-42%E2%80%9348-4A86CF?logo=gnome&logoColor=white">
   <img alt="Ubuntu" src="https://img.shields.io/badge/Ubuntu-22.04%2B-E95420?logo=ubuntu&logoColor=white">
   <img alt="Zero deps" src="https://img.shields.io/badge/deps-zero-success">
   <img alt="License" src="https://img.shields.io/badge/license-MIT-blue">
@@ -57,7 +57,7 @@ If you use **Claude Code**, **Claude Pro** or **Claude Max**, you know the feeli
 
 ## 📦 Installation
 
-**Requirements:** GNOME Shell 45+ (Ubuntu 24.04+, Fedora 39+…) and [Claude Code](https://claude.com/claude-code) logged in.
+**Requirements:** GNOME Shell 42+ (Ubuntu 22.04+, Fedora 36+…) and [Claude Code](https://claude.com/claude-code) logged in.
 
 ```bash
 git clone https://github.com/krugerrgabriel/simple-claude-usage.git
@@ -95,7 +95,7 @@ Your OAuth token expired. Open Claude Code once — it refreshes the token autom
 Not yet — it tracks subscription limits (Pro/Max plans). API cost tracking is on the roadmap.
 
 **Does it work on KDE / other desktops?**
-No, it's a GNOME Shell extension. GNOME 45–48 are supported.
+No, it's a GNOME Shell extension. GNOME 42–48 are supported.
 
 **Is this an official Anthropic project?**
 No. It's an independent open-source tool that uses your own credentials, locally.

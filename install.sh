@@ -17,9 +17,16 @@ if ! command -v gnome-shell >/dev/null 2>&1; then
 fi
 
 SHELL_MAJOR="$(gnome-shell --version | grep -oE '[0-9]+' | head -1)"
-if [ "$SHELL_MAJOR" -lt 45 ]; then
-    echo "✗ GNOME Shell 45+ is required (you have $SHELL_MAJOR)." >&2
+if [ "$SHELL_MAJOR" -lt 42 ]; then
+    echo "✗ GNOME Shell 42+ is required (you have $SHELL_MAJOR)." >&2
     exit 1
+fi
+
+# GNOME 45 moved extensions to ES Modules; older shells need the legacy build.
+if [ "$SHELL_MAJOR" -ge 45 ]; then
+    BUILD_DIR="$SRC_DIR"
+else
+    BUILD_DIR="$SRC_DIR/legacy"
 fi
 
 if [ ! -f "$HOME/.claude/.credentials.json" ]; then
@@ -31,8 +38,8 @@ fi
 
 # Install -------------------------------------------------------------------
 mkdir -p "$DEST_DIR"
-cp "$SRC_DIR/extension.js" "$SRC_DIR/metadata.json" "$DEST_DIR/"
-echo "✓ Installed to $DEST_DIR"
+cp "$BUILD_DIR/extension.js" "$BUILD_DIR/metadata.json" "$DEST_DIR/"
+echo "✓ Installed to $DEST_DIR (GNOME $SHELL_MAJOR build)"
 
 # Enable (works now if the shell already knows the extension, otherwise
 # pre-enables it for the next shell restart) --------------------------------
