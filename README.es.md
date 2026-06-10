@@ -52,6 +52,7 @@ Si usas **Claude Code**, **Claude Pro** o **Claude Max**, conoces la sensación:
 | 🔐 **Sin nuevo login** | Reutiliza las credenciales de Claude Code que ya están en tu máquina |
 | 🪶 **Cero dependencias** | ~200 líneas de GJS puro. Sin Python, sin Node, sin daemons, sin telemetría |
 | 🔄 **Auto-recuperación** | ¿Token caducado? Te avisa. Abrir Claude Code lo arregla solo |
+| 🔔 **Avisos de actualización** | Comprueba GitHub una vez al día y se actualiza con un clic cuando hay versión nueva |
 
 ---
 
@@ -83,6 +84,7 @@ el comando `/usage`. Nada más:
 - ✅ Tu token nunca sale de tu máquina (una llamada HTTPS a `api.anthropic.com`, igual que el propio Claude Code)
 - ✅ Consultar el consumo gasta **cero** de tu plan
 - ✅ Sin cuentas, sin API keys, sin configuración
+- ✅ La comprobación de actualizaciones es una única petición anónima al día a la API de GitHub — tu token nunca participa
 
 ---
 

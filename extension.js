@@ -1,6 +1,7 @@
 import GObject from 'gi://GObject';
 import St from 'gi://St';
 import GLib from 'gi://GLib';
+import Gio from 'gi://Gio';
 import Clutter from 'gi://Clutter';
 import Soup from 'gi://Soup?version=3.0';
 
@@ -11,14 +12,24 @@ import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 
 const CREDS_PATH = GLib.get_home_dir() + '/.claude/.credentials.json';
 const USAGE_URL = 'https://api.anthropic.com/api/oauth/usage';
+const REPO = 'krugerrgabriel/simple-claude-usage';
+const RELEASES_API = `https://api.github.com/repos/${REPO}/releases/latest`;
+const RELEASES_PAGE = `https://github.com/${REPO}/releases`;
+// Build moderna baixa da raiz do repo; a legada sobrescreve com 'legacy/'
+const RAW_SUBDIR = '';
 const POLL_SECONDS = 60;
 // Em falha o intervalo dobra a cada tentativa até este teto
 const POLL_MAX_SECONDS = 600;
+const UPDATE_CHECK_SECONDS = 86400;
 
 const ClaudeUsageIndicator = GObject.registerClass(
 class ClaudeUsageIndicator extends PanelMenu.Button {
-    _init() {
+    _init(ext) {
         super._init(0.0, 'Claude Usage');
+
+        this._path = ext.path;
+        this._uuid = ext.metadata.uuid;
+        this._version = ext.metadata['version-name'] ?? '0.0.0';
 
         this._label = new St.Label({
             text: '✻ …',
@@ -30,6 +41,9 @@ class ClaudeUsageIndicator extends PanelMenu.Button {
         this._timeoutId = null;
         this._failures = 0;
         this._lastGood = null;
+        this._updateState = null;
+        this._pendingTag = null;
+        this._notifiedTag = null;
 
         this._sessionItem = new PopupMenu.PopupMenuItem('Sessão (5h): —', {reactive: false});
         this._weekItem = new PopupMenu.PopupMenuItem('Semana: —', {reactive: false});
@@ -50,7 +64,22 @@ class ClaudeUsageIndicator extends PanelMenu.Button {
         refreshItem.connect('activate', () => this._refresh());
         this.menu.addMenuItem(refreshItem);
 
+        this._updateItem = new PopupMenu.PopupMenuItem('');
+        this._updateItem.visible = false;
+        this._updateItem.connect('activate', () => this._onUpdateClicked());
+        this.menu.addMenuItem(this._updateItem);
+
         this._refresh();
+
+        this._updateInitialId = GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, 30, () => {
+            this._updateInitialId = null;
+            this._checkUpdate();
+            return GLib.SOURCE_REMOVE;
+        });
+        this._updateDailyId = GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, UPDATE_CHECK_SECONDS, () => {
+            this._checkUpdate();
+            return GLib.SOURCE_CONTINUE;
+        });
     }
 
     _scheduleNext(seconds) {
@@ -75,6 +104,24 @@ class ClaudeUsageIndicator extends PanelMenu.Button {
         }
     }
 
+    _fetchText(url, headers, cb) {
+        const msg = Soup.Message.new('GET', url);
+        msg.request_headers.replace('User-Agent', `simple-claude-usage/${this._version}`);
+        for (const [k, v] of Object.entries(headers))
+            msg.request_headers.replace(k, v);
+
+        this._http.send_and_read_async(msg, GLib.PRIORITY_DEFAULT, null, (session, result) => {
+            try {
+                const bytes = session.send_and_read_finish(result);
+                const status = msg.get_status();
+                const text = new TextDecoder().decode(bytes.get_data());
+                cb(status, text);
+            } catch {
+                cb(0, null);
+            }
+        });
+    }
+
     _refresh() {
         const token = this._readToken();
         if (!token) {
@@ -82,23 +129,13 @@ class ClaudeUsageIndicator extends PanelMenu.Button {
             return;
         }
 
-        const msg = Soup.Message.new('GET', USAGE_URL);
-        msg.request_headers.append('Authorization', `Bearer ${token}`);
-        msg.request_headers.append('anthropic-beta', 'oauth-2025-04-20');
-        // Sem este User-Agent o endpoint cai num bucket de rate limit
-        // agressivo e devolve 429 persistente (anthropics/claude-code#30930)
-        msg.request_headers.replace('User-Agent', 'claude-code/2.1.172');
-
-        this._http.send_and_read_async(msg, GLib.PRIORITY_DEFAULT, null, (session, result) => {
-            let bytes;
-            try {
-                bytes = session.send_and_read_finish(result);
-            } catch {
-                this._onFailure('sem rede');
-                return;
-            }
-
-            const status = msg.get_status();
+        // Sem o User-Agent claude-code o endpoint cai num bucket de rate
+        // limit agressivo e devolve 429 persistente (anthropics/claude-code#30930)
+        this._fetchText(USAGE_URL, {
+            'Authorization': `Bearer ${token}`,
+            'anthropic-beta': 'oauth-2025-04-20',
+            'User-Agent': 'claude-code/2.1.172',
+        }, (status, body) => {
             if (status === 401) {
                 // Token expirado: o Claude Code renova ao ser aberto
                 this._onFailure('token expirado — abra o Claude Code');
@@ -108,14 +145,13 @@ class ClaudeUsageIndicator extends PanelMenu.Button {
                 this._onFailure('limite de consultas da API');
                 return;
             }
-            if (status !== 200) {
-                this._onFailure(`HTTP ${status}`);
+            if (status !== 200 || !body) {
+                this._onFailure(status ? `HTTP ${status}` : 'sem rede');
                 return;
             }
-
             let data;
             try {
-                data = JSON.parse(new TextDecoder().decode(bytes.get_data()));
+                data = JSON.parse(body);
             } catch {
                 this._onFailure('resposta inesperada');
                 return;
@@ -148,6 +184,84 @@ class ClaudeUsageIndicator extends PanelMenu.Button {
         this._statusItem.visible = true;
         this._scheduleNext(wait);
     }
+
+    // --- Atualizações -------------------------------------------------
+
+    _isNewer(tag) {
+        const parse = v => String(v).replace(/^v/, '').split('.').map(n => parseInt(n, 10) || 0);
+        const remote = parse(tag), local = parse(this._version);
+        for (let i = 0; i < 3; i++) {
+            if ((remote[i] || 0) > (local[i] || 0))
+                return true;
+            if ((remote[i] || 0) < (local[i] || 0))
+                return false;
+        }
+        return false;
+    }
+
+    _checkUpdate() {
+        if (this._updateState === 'downloaded')
+            return;
+        this._fetchText(RELEASES_API, {}, (status, body) => {
+            if (status !== 200 || !body)
+                return;
+            try {
+                const tag = JSON.parse(body).tag_name;
+                if (tag && this._isNewer(tag))
+                    this._offerUpdate(tag);
+            } catch {
+            }
+        });
+    }
+
+    _offerUpdate(tag) {
+        this._pendingTag = tag;
+        this._updateState = 'available';
+        this._updateItem.label.set_text(`⬆ ${tag} disponível — clique para atualizar`);
+        this._updateItem.visible = true;
+        if (this._notifiedTag !== tag) {
+            this._notifiedTag = tag;
+            Main.notify('Simple Claude Usage',
+                `Versão ${tag} disponível — clique no ✻ na barra para atualizar.`);
+        }
+    }
+
+    _onUpdateClicked() {
+        if (this._updateState === 'available')
+            this._downloadUpdate(this._pendingTag);
+        else if (this._updateState === 'failed')
+            Gio.AppInfo.launch_default_for_uri(RELEASES_PAGE, null);
+    }
+
+    _downloadUpdate(tag) {
+        this._updateItem.label.set_text('⏳ Baixando atualização…');
+        const base = `https://raw.githubusercontent.com/${REPO}/${tag}/${RAW_SUBDIR}`;
+
+        this._fetchText(`${base}extension.js`, {}, (jsStatus, js) => {
+            this._fetchText(`${base}metadata.json`, {}, (metaStatus, meta) => {
+                try {
+                    if (jsStatus !== 200 || metaStatus !== 200 || !js || js.length < 500)
+                        throw new Error('download incompleto');
+                    const remoteMeta = JSON.parse(meta);
+                    // Preserva o uuid local: o diretório da extensão tem
+                    // que continuar batendo com ele
+                    remoteMeta.uuid = this._uuid;
+                    GLib.file_set_contents(`${this._path}/extension.js`, js);
+                    GLib.file_set_contents(`${this._path}/metadata.json`,
+                        JSON.stringify(remoteMeta, null, 2) + '\n');
+                    this._updateState = 'downloaded';
+                    this._updateItem.label.set_text('✓ Atualizado — reinicie o GNOME Shell para aplicar');
+                    Main.notify('Simple Claude Usage',
+                        `Atualizado para ${tag}. Reinicie o GNOME Shell para aplicar (X11: Alt+F2 → r).`);
+                } catch {
+                    this._updateState = 'failed';
+                    this._updateItem.label.set_text('⚠ Falha ao baixar — clique para abrir o GitHub');
+                }
+            });
+        });
+    }
+
+    // -------------------------------------------------------------------
 
     _fmtReset(iso) {
         if (!iso)
@@ -195,10 +309,11 @@ class ClaudeUsageIndicator extends PanelMenu.Button {
     }
 
     destroy() {
-        if (this._timeoutId) {
-            GLib.source_remove(this._timeoutId);
-            this._timeoutId = null;
+        for (const id of [this._timeoutId, this._updateInitialId, this._updateDailyId]) {
+            if (id)
+                GLib.source_remove(id);
         }
+        this._timeoutId = this._updateInitialId = this._updateDailyId = null;
         this._http.abort();
         super.destroy();
     }
@@ -206,7 +321,7 @@ class ClaudeUsageIndicator extends PanelMenu.Button {
 
 export default class ClaudeUsageExtension extends Extension {
     enable() {
-        this._indicator = new ClaudeUsageIndicator();
+        this._indicator = new ClaudeUsageIndicator(this);
         Main.panel.addToStatusArea(this.uuid, this._indicator);
     }
 

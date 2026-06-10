@@ -52,6 +52,7 @@ O **Simple Claude Usage** coloca essa resposta onde seus olhos já estão: na ba
 | 🔐 **Sem novo login** | Reusa as credenciais do Claude Code que já estão na sua máquina |
 | 🪶 **Zero dependências** | ~200 linhas de GJS puro. Sem Python, sem Node, sem daemons, sem telemetria |
 | 🔄 **Auto-recuperação** | Token expirou? Ele avisa. Abrir o Claude Code resolve sozinho |
+| 🔔 **Avisa de atualizações** | Checa o GitHub uma vez por dia e se atualiza com um clique quando sai versão nova |
 
 ---
 
@@ -83,6 +84,7 @@ comando `/usage` usa. Nada além disso:
 - ✅ Seu token nunca sai da sua máquina (uma chamada HTTPS para `api.anthropic.com`, igual ao próprio Claude Code)
 - ✅ Consultar o consumo gasta **zero** do seu plano
 - ✅ Sem contas, sem API keys, sem configuração
+- ✅ A checagem de atualização é uma única requisição anônima por dia à API do GitHub — seu token nunca entra nela
 
 ---
 

@@ -52,6 +52,7 @@ If you use **Claude Code**, **Claude Pro** or **Claude Max**, you know the feeli
 | 🔐 **No new login** | Reuses the Claude Code credentials already on your machine |
 | 🪶 **Zero dependencies** | ~200 lines of vanilla GJS. No Python, no Node, no daemons, no telemetry |
 | 🔄 **Self-healing** | Token expired? It tells you. Opening Claude Code fixes it automatically |
+| 🔔 **Update checker** | Checks GitHub once a day and updates itself in one click when a new version is out |
 
 ---
 
@@ -83,6 +84,7 @@ The extension reads the OAuth token that Claude Code already stores in
 - ✅ Your token never leaves your machine (one HTTPS call to `api.anthropic.com`, same as Claude Code itself)
 - ✅ Checking usage consumes **zero** of your plan
 - ✅ No accounts, no API keys, no configuration
+- ✅ The update check is a single anonymous request a day to the GitHub API — your token is never involved
 
 ---
 

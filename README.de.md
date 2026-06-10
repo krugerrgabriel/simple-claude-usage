@@ -52,6 +52,7 @@ Wenn du **Claude Code**, **Claude Pro** oder **Claude Max** nutzt, kennst du das
 | 🔐 **Kein neuer Login** | Nutzt die Claude-Code-Anmeldedaten, die bereits auf deinem Rechner liegen |
 | 🪶 **Null Abhängigkeiten** | ~200 Zeilen pures GJS. Kein Python, kein Node, keine Daemons, keine Telemetrie |
 | 🔄 **Selbstheilend** | Token abgelaufen? Es sagt dir Bescheid. Claude Code öffnen genügt |
+| 🔔 **Update-Checker** | Prüft einmal täglich GitHub und aktualisiert sich mit einem Klick, wenn eine neue Version erscheint |
 
 ---
 
@@ -83,6 +84,7 @@ Endpoint** ab wie der `/usage`-Befehl. Sonst nichts:
 - ✅ Dein Token verlässt nie deinen Rechner (ein HTTPS-Call zu `api.anthropic.com`, wie bei Claude Code selbst)
 - ✅ Die Abfrage verbraucht **nichts** von deinem Plan
 - ✅ Keine Konten, keine API-Keys, keine Konfiguration
+- ✅ Der Update-Check ist eine einzige anonyme Anfrage pro Tag an die GitHub-API — dein Token ist nie beteiligt
 
 ---
 

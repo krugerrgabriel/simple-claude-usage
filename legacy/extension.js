@@ -7,22 +7,33 @@ const Config = imports.misc.config;
 const SHELL_MAJOR = parseInt(Config.PACKAGE_VERSION.split('.')[0], 10);
 imports.gi.versions.Soup = SHELL_MAJOR >= 43 ? '3.0' : '2.4';
 
-const {GObject, St, Clutter, GLib, Soup} = imports.gi;
+const {GObject, St, Clutter, GLib, Gio, Soup} = imports.gi;
 const ByteArray = imports.byteArray;
 const Main = imports.ui.main;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
+const Me = imports.misc.extensionUtils.getCurrentExtension();
 
 const CREDS_PATH = GLib.get_home_dir() + '/.claude/.credentials.json';
 const USAGE_URL = 'https://api.anthropic.com/api/oauth/usage';
+const REPO = 'krugerrgabriel/simple-claude-usage';
+const RELEASES_API = `https://api.github.com/repos/${REPO}/releases/latest`;
+const RELEASES_PAGE = `https://github.com/${REPO}/releases`;
+// A build legada vive em legacy/ no repositório
+const RAW_SUBDIR = 'legacy/';
 const POLL_SECONDS = 60;
 // Em falha o intervalo dobra a cada tentativa até este teto
 const POLL_MAX_SECONDS = 600;
+const UPDATE_CHECK_SECONDS = 86400;
 
 const ClaudeUsageIndicator = GObject.registerClass(
 class ClaudeUsageIndicator extends PanelMenu.Button {
     _init() {
         super._init(0.0, 'Claude Usage');
+
+        this._path = Me.path;
+        this._uuid = Me.metadata.uuid;
+        this._version = Me.metadata['version-name'] || '0.0.0';
 
         this._label = new St.Label({
             text: '✻ …',
@@ -34,6 +45,9 @@ class ClaudeUsageIndicator extends PanelMenu.Button {
         this._timeoutId = null;
         this._failures = 0;
         this._lastGood = null;
+        this._updateState = null;
+        this._pendingTag = null;
+        this._notifiedTag = null;
 
         this._sessionItem = new PopupMenu.PopupMenuItem('Sessão (5h): —', {reactive: false});
         this._weekItem = new PopupMenu.PopupMenuItem('Semana: —', {reactive: false});
@@ -54,7 +68,22 @@ class ClaudeUsageIndicator extends PanelMenu.Button {
         refreshItem.connect('activate', () => this._refresh());
         this.menu.addMenuItem(refreshItem);
 
+        this._updateItem = new PopupMenu.PopupMenuItem('');
+        this._updateItem.visible = false;
+        this._updateItem.connect('activate', () => this._onUpdateClicked());
+        this.menu.addMenuItem(this._updateItem);
+
         this._refresh();
+
+        this._updateInitialId = GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, 30, () => {
+            this._updateInitialId = null;
+            this._checkUpdate();
+            return GLib.SOURCE_REMOVE;
+        });
+        this._updateDailyId = GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, UPDATE_CHECK_SECONDS, () => {
+            this._checkUpdate();
+            return GLib.SOURCE_CONTINUE;
+        });
     }
 
     _scheduleNext(seconds) {
@@ -79,14 +108,12 @@ class ClaudeUsageIndicator extends PanelMenu.Button {
         }
     }
 
-    // Runs the GET and calls onDone(statusCode, bodyText) on either Soup API.
-    _request(token, onDone) {
-        const msg = Soup.Message.new('GET', USAGE_URL);
-        msg.request_headers.append('Authorization', `Bearer ${token}`);
-        msg.request_headers.append('anthropic-beta', 'oauth-2025-04-20');
-        // Sem este User-Agent o endpoint cai num bucket de rate limit
-        // agressivo e devolve 429 persistente (anthropics/claude-code#30930)
-        msg.request_headers.replace('User-Agent', 'claude-code/2.1.172');
+    // Runs the GET and calls cb(statusCode, bodyText) on either Soup API.
+    _fetchText(url, headers, cb) {
+        const msg = Soup.Message.new('GET', url);
+        msg.request_headers.replace('User-Agent', `simple-claude-usage/${this._version}`);
+        for (const k of Object.keys(headers))
+            msg.request_headers.replace(k, headers[k]);
 
         if (SHELL_MAJOR >= 43) {
             this._http.send_and_read_async(msg, GLib.PRIORITY_DEFAULT, null, (session, result) => {
@@ -98,11 +125,11 @@ class ClaudeUsageIndicator extends PanelMenu.Button {
                 } catch (e) {
                     // erro de transporte: status fica 0
                 }
-                onDone(status, body);
+                cb(status, body);
             });
         } else {
             this._http.queue_message(msg, (session, m) => {
-                onDone(m.status_code, m.response_body ? m.response_body.data : null);
+                cb(m.status_code, m.response_body ? m.response_body.data : null);
             });
         }
     }
@@ -114,7 +141,13 @@ class ClaudeUsageIndicator extends PanelMenu.Button {
             return;
         }
 
-        this._request(token, (status, body) => {
+        // Sem o User-Agent claude-code o endpoint cai num bucket de rate
+        // limit agressivo e devolve 429 persistente (anthropics/claude-code#30930)
+        this._fetchText(USAGE_URL, {
+            'Authorization': `Bearer ${token}`,
+            'anthropic-beta': 'oauth-2025-04-20',
+            'User-Agent': 'claude-code/2.1.172',
+        }, (status, body) => {
             if (status === 401) {
                 // Token expirado: o Claude Code renova ao ser aberto
                 this._onFailure('token expirado — abra o Claude Code');
@@ -164,6 +197,84 @@ class ClaudeUsageIndicator extends PanelMenu.Button {
         this._scheduleNext(wait);
     }
 
+    // --- Atualizações -------------------------------------------------
+
+    _isNewer(tag) {
+        const parse = v => String(v).replace(/^v/, '').split('.').map(n => parseInt(n, 10) || 0);
+        const remote = parse(tag), local = parse(this._version);
+        for (let i = 0; i < 3; i++) {
+            if ((remote[i] || 0) > (local[i] || 0))
+                return true;
+            if ((remote[i] || 0) < (local[i] || 0))
+                return false;
+        }
+        return false;
+    }
+
+    _checkUpdate() {
+        if (this._updateState === 'downloaded')
+            return;
+        this._fetchText(RELEASES_API, {}, (status, body) => {
+            if (status !== 200 || !body)
+                return;
+            try {
+                const tag = JSON.parse(body).tag_name;
+                if (tag && this._isNewer(tag))
+                    this._offerUpdate(tag);
+            } catch (e) {
+            }
+        });
+    }
+
+    _offerUpdate(tag) {
+        this._pendingTag = tag;
+        this._updateState = 'available';
+        this._updateItem.label.set_text(`⬆ ${tag} disponível — clique para atualizar`);
+        this._updateItem.visible = true;
+        if (this._notifiedTag !== tag) {
+            this._notifiedTag = tag;
+            Main.notify('Simple Claude Usage',
+                `Versão ${tag} disponível — clique no ✻ na barra para atualizar.`);
+        }
+    }
+
+    _onUpdateClicked() {
+        if (this._updateState === 'available')
+            this._downloadUpdate(this._pendingTag);
+        else if (this._updateState === 'failed')
+            Gio.AppInfo.launch_default_for_uri(RELEASES_PAGE, null);
+    }
+
+    _downloadUpdate(tag) {
+        this._updateItem.label.set_text('⏳ Baixando atualização…');
+        const base = `https://raw.githubusercontent.com/${REPO}/${tag}/${RAW_SUBDIR}`;
+
+        this._fetchText(`${base}extension.js`, {}, (jsStatus, js) => {
+            this._fetchText(`${base}metadata.json`, {}, (metaStatus, meta) => {
+                try {
+                    if (jsStatus !== 200 || metaStatus !== 200 || !js || js.length < 500)
+                        throw new Error('download incompleto');
+                    const remoteMeta = JSON.parse(meta);
+                    // Preserva o uuid local: o diretório da extensão tem
+                    // que continuar batendo com ele
+                    remoteMeta.uuid = this._uuid;
+                    GLib.file_set_contents(`${this._path}/extension.js`, js);
+                    GLib.file_set_contents(`${this._path}/metadata.json`,
+                        JSON.stringify(remoteMeta, null, 2) + '\n');
+                    this._updateState = 'downloaded';
+                    this._updateItem.label.set_text('✓ Atualizado — reinicie o GNOME Shell para aplicar');
+                    Main.notify('Simple Claude Usage',
+                        `Atualizado para ${tag}. Reinicie o GNOME Shell para aplicar (X11: Alt+F2 → r).`);
+                } catch (e) {
+                    this._updateState = 'failed';
+                    this._updateItem.label.set_text('⚠ Falha ao baixar — clique para abrir o GitHub');
+                }
+            });
+        });
+    }
+
+    // -------------------------------------------------------------------
+
     _fmtReset(iso) {
         if (!iso)
             return '';
@@ -210,10 +321,12 @@ class ClaudeUsageIndicator extends PanelMenu.Button {
     }
 
     destroy() {
-        if (this._timeoutId) {
-            GLib.source_remove(this._timeoutId);
-            this._timeoutId = null;
+        const ids = [this._timeoutId, this._updateInitialId, this._updateDailyId];
+        for (let i = 0; i < ids.length; i++) {
+            if (ids[i])
+                GLib.source_remove(ids[i]);
         }
+        this._timeoutId = this._updateInitialId = this._updateDailyId = null;
         this._http.abort();
         super.destroy();
     }
