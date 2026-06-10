@@ -12,6 +12,8 @@ import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 const CREDS_PATH = GLib.get_home_dir() + '/.claude/.credentials.json';
 const USAGE_URL = 'https://api.anthropic.com/api/oauth/usage';
 const POLL_SECONDS = 60;
+// Em falha o intervalo dobra a cada tentativa até este teto
+const POLL_MAX_SECONDS = 600;
 
 const ClaudeUsageIndicator = GObject.registerClass(
 class ClaudeUsageIndicator extends PanelMenu.Button {
@@ -25,28 +27,40 @@ class ClaudeUsageIndicator extends PanelMenu.Button {
         this.add_child(this._label);
 
         this._http = new Soup.Session({timeout: 15});
+        this._timeoutId = null;
+        this._failures = 0;
+        this._lastGood = null;
 
         this._sessionItem = new PopupMenu.PopupMenuItem('Sessão (5h): —', {reactive: false});
         this._weekItem = new PopupMenu.PopupMenuItem('Semana: —', {reactive: false});
         this._opusItem = new PopupMenu.PopupMenuItem('', {reactive: false});
         this._sonnetItem = new PopupMenu.PopupMenuItem('', {reactive: false});
+        this._statusItem = new PopupMenu.PopupMenuItem('', {reactive: false});
         this._opusItem.visible = false;
         this._sonnetItem.visible = false;
+        this._statusItem.visible = false;
         this.menu.addMenuItem(this._sessionItem);
         this.menu.addMenuItem(this._weekItem);
         this.menu.addMenuItem(this._opusItem);
         this.menu.addMenuItem(this._sonnetItem);
+        this.menu.addMenuItem(this._statusItem);
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 
         const refreshItem = new PopupMenu.PopupMenuItem('Atualizar agora');
         refreshItem.connect('activate', () => this._refresh());
         this.menu.addMenuItem(refreshItem);
 
-        this._timeoutId = GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, POLL_SECONDS, () => {
-            this._refresh();
-            return GLib.SOURCE_CONTINUE;
-        });
         this._refresh();
+    }
+
+    _scheduleNext(seconds) {
+        if (this._timeoutId)
+            GLib.source_remove(this._timeoutId);
+        this._timeoutId = GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, seconds, () => {
+            this._timeoutId = null;
+            this._refresh();
+            return GLib.SOURCE_REMOVE;
+        });
     }
 
     _readToken() {
@@ -64,7 +78,7 @@ class ClaudeUsageIndicator extends PanelMenu.Button {
     _refresh() {
         const token = this._readToken();
         if (!token) {
-            this._setError('sem login');
+            this._onFailure('sem login no Claude Code');
             return;
         }
 
@@ -76,31 +90,63 @@ class ClaudeUsageIndicator extends PanelMenu.Button {
         msg.request_headers.replace('User-Agent', 'claude-code/2.1.172');
 
         this._http.send_and_read_async(msg, GLib.PRIORITY_DEFAULT, null, (session, result) => {
+            let bytes;
             try {
-                const bytes = session.send_and_read_finish(result);
-                const status = msg.get_status();
-                if (status === 401) {
-                    // Token expirado: o Claude Code renova ao ser aberto
-                    this._setError('abra o Claude Code');
-                    return;
-                }
-                if (status !== 200) {
-                    this._setError(`HTTP ${status}`);
-                    return;
-                }
-                const data = JSON.parse(new TextDecoder().decode(bytes.get_data()));
-                this._update(data);
+                bytes = session.send_and_read_finish(result);
             } catch {
-                this._setError('sem rede');
+                this._onFailure('sem rede');
+                return;
             }
+
+            const status = msg.get_status();
+            if (status === 401) {
+                // Token expirado: o Claude Code renova ao ser aberto
+                this._onFailure('token expirado — abra o Claude Code');
+                return;
+            }
+            if (status === 429) {
+                this._onFailure('limite de consultas da API');
+                return;
+            }
+            if (status !== 200) {
+                this._onFailure(`HTTP ${status}`);
+                return;
+            }
+
+            let data;
+            try {
+                data = JSON.parse(new TextDecoder().decode(bytes.get_data()));
+            } catch {
+                this._onFailure('resposta inesperada');
+                return;
+            }
+            this._onSuccess(data);
         });
     }
 
-    _setError(why) {
-        this._label.set_text('✻ —');
-        this._label.set_style('color: #888888;');
-        this._sessionItem.label.set_text(`Erro: ${why}`);
-        this._weekItem.label.set_text('Tentando de novo em 1 min');
+    _onSuccess(data) {
+        this._failures = 0;
+        this._lastGood = data;
+        this._statusItem.visible = false;
+        this._render(data);
+        this._scheduleNext(POLL_SECONDS);
+    }
+
+    _onFailure(why) {
+        this._failures++;
+        const wait = Math.min(POLL_SECONDS * 2 ** this._failures, POLL_MAX_SECONDS);
+
+        // Mantém o último valor conhecido na barra, esmaecido para
+        // sinalizar que está desatualizado
+        if (this._lastGood)
+            this._label.set_style('color: #888888;');
+        else
+            this._label.set_text('✻ —');
+
+        const mins = Math.max(1, Math.round(wait / 60));
+        this._statusItem.label.set_text(`⚠ ${why} · nova tentativa em ${mins} min`);
+        this._statusItem.visible = true;
+        this._scheduleNext(wait);
     }
 
     _fmtReset(iso) {
@@ -115,7 +161,7 @@ class ClaudeUsageIndicator extends PanelMenu.Button {
         return sameDay ? local.format('%H:%M') : local.format('%a %H:%M');
     }
 
-    _update(data) {
+    _render(data) {
         const five = data.five_hour ?? {};
         const week = data.seven_day ?? {};
         const pct = v => (v === null || v === undefined) ? null : Math.round(v);
