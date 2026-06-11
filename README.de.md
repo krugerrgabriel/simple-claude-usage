@@ -93,6 +93,9 @@ Endpoint** ab wie der `/usage`-Befehl. Sonst nichts:
 **Die Bar zeigt ✻ — und "Claude Code öffnen".**
 Dein OAuth-Token ist abgelaufen. Öffne Claude Code einmal — das Token wird automatisch erneuert und die Anzeige erholt sich innerhalb einer Minute.
 
+**Ich nutze Claude Code täglich, aber es heißt "credentials stale".**
+Die Anmeldedaten-Datei auf *diesem* Rechner wird nicht erneuert. Zwei häufige Ursachen: du nutzt Claude Code auf einer anderen Maschine (SSH/WSL/Container), oder deine CLI authentifiziert sich mit einem `ANTHROPIC_API_KEY` statt mit deinem Abo — prüfe mit `/status` in Claude Code und melde dich mit `/login` an. Einmal lokal `claude` ausführen behebt den ersten Fall.
+
 **Funktioniert es mit der API (Pay-as-you-go) statt Abo?**
 Noch nicht — es verfolgt Abo-Limits (Pro/Max-Pläne). API-Kosten-Tracking steht auf der Roadmap.
 

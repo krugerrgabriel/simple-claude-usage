@@ -92,6 +92,9 @@ cd simple-claude-usage
 **顶栏显示 ✻ — 和"请打开 Claude Code"。**
 你的 OAuth 令牌已过期。打开一次 Claude Code，令牌会自动刷新，指示器一分钟内恢复。
 
+**我每天都用 Claude Code，却显示"credentials stale"。**
+*这台*机器的凭据文件没有被刷新。两个常见原因：你在另一台机器（SSH/WSL/容器）上使用 Claude Code，或者你的 CLI 在用 `ANTHROPIC_API_KEY` 而不是订阅进行认证 — 在 Claude Code 中用 `/status` 检查，并用 `/login` 登录账号。前者只需在本机运行一次 `claude` 即可解决。
+
 **支持 API（按量付费）而非订阅吗？**
 暂不支持 — 目前追踪订阅限额（Pro/Max 套餐）。API 成本追踪在路线图中。
 

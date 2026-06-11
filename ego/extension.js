@@ -72,19 +72,20 @@ class ClaudeUsageIndicator extends PanelMenu.Button {
             try {
                 const [ok, contents] = f.load_contents_finish(res);
                 if (!ok) {
-                    cb(null);
+                    cb(null, 0);
                     return;
                 }
                 const creds = JSON.parse(new TextDecoder().decode(contents));
-                cb(creds?.claudeAiOauth?.accessToken ?? null);
+                const oauth = creds?.claudeAiOauth ?? {};
+                cb(oauth.accessToken ?? null, oauth.expiresAt ?? 0);
             } catch {
-                cb(null);
+                cb(null, 0);
             }
         });
     }
 
     _refresh() {
-        this._readToken(token => {
+        this._readToken((token, expiresAt) => {
             if (!token) {
                 this._onFailure('not logged in to Claude Code');
                 return;
@@ -109,8 +110,13 @@ class ClaudeUsageIndicator extends PanelMenu.Button {
 
                 const status = msg.get_status();
                 if (status === 401) {
-                    // Expired token: Claude Code refreshes it when opened
-                    this._onFailure('token expired — open Claude Code');
+                    // A token that expired hours ago means Claude Code on this
+                    // machine is not refreshing the credentials file (another
+                    // machine, API-key auth, custom CLAUDE_CONFIG_DIR…)
+                    const stale = expiresAt && Date.now() - expiresAt > 3600000;
+                    this._onFailure(stale
+                        ? 'credentials stale — run claude in a terminal'
+                        : 'token expired — open Claude Code');
                     return;
                 }
                 if (status === 429) {

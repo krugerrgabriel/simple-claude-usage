@@ -93,6 +93,9 @@ cd simple-claude-usage
 **바에 ✻ — 와 "Claude Code를 여세요"가 표시됩니다.**
 OAuth 토큰이 만료됐습니다. Claude Code를 한 번 열면 토큰이 자동 갱신되고 표시기는 1분 안에 복구됩니다.
 
+**매일 Claude Code를 쓰는데 "credentials stale"이라고 나옵니다.**
+*이* 컴퓨터의 자격 증명 파일이 갱신되지 않고 있습니다. 흔한 원인 두 가지: 다른 컴퓨터(SSH/WSL/컨테이너)에서 Claude Code를 사용 중이거나, CLI가 구독 대신 `ANTHROPIC_API_KEY`로 인증 중입니다 — Claude Code에서 `/status`로 확인하고 `/login`으로 로그인하세요. 전자는 이 컴퓨터에서 `claude`를 한 번 실행하면 해결됩니다.
+
 **구독 대신 API(종량제)도 지원하나요?**
 아직입니다 — 현재는 구독 한도(Pro/Max 플랜)를 추적합니다. API 비용 추적은 로드맵에 있습니다.
 

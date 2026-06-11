@@ -93,6 +93,9 @@ comando `/usage` usa. Nada além disso:
 **A barra mostra ✻ — e "abra o Claude Code".**
 Seu token OAuth expirou. Abra o Claude Code uma vez — ele renova o token automaticamente e o indicador se recupera em até um minuto.
 
+**Uso o Claude Code todo dia, mas aparece "credentials stale".**
+O arquivo de credenciais *desta* máquina não está sendo renovado. Duas causas comuns: você usa o Claude Code em outra máquina (SSH/WSL/containers), ou o CLI autentica com `ANTHROPIC_API_KEY` em vez da assinatura — confira com `/status` dentro do Claude Code e faça `/login` com sua conta. Rodar `claude` localmente uma vez resolve o primeiro caso.
+
 **Funciona com a API (pagamento por uso) em vez de assinatura?**
 Ainda não — ele acompanha os limites de assinatura (planos Pro/Max). Rastreio de custo da API está no roadmap.
 

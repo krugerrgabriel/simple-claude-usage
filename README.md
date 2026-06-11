@@ -93,6 +93,9 @@ The extension reads the OAuth token that Claude Code already stores in
 **The bar shows ✻ — and "open Claude Code".**
 Your OAuth token expired. Open Claude Code once — it refreshes the token automatically and the indicator recovers within a minute.
 
+**I use Claude Code every day, but it says "credentials stale".**
+The credentials file on *this* machine isn't being refreshed. Two common causes: you use Claude Code on another machine (SSH/WSL/containers), or your CLI authenticates with an `ANTHROPIC_API_KEY` instead of your subscription — check with `/status` inside Claude Code and `/login` with your account. Running `claude` locally once fixes the first case.
+
 **Does it work with the API (pay-as-you-go) instead of a subscription?**
 Not yet — it tracks subscription limits (Pro/Max plans). API cost tracking is on the roadmap.
 
