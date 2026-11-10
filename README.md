@@ -16,7 +16,7 @@
 </p>
 
 <p align="center">
-  <img alt="GNOME Shell" src="https://img.shields.io/badge/GNOME%20Shell-42%E2%80%9348-4A86CF?logo=gnome&logoColor=white">
+  <img alt="GNOME Shell" src="https://img.shields.io/badge/GNOME%20Shell-42%E2%80%9350-4A86CF?logo=gnome&logoColor=white">
   <img alt="Ubuntu" src="https://img.shields.io/badge/Ubuntu-22.04%2B-E95420?logo=ubuntu&logoColor=white">
   <img alt="Zero deps" src="https://img.shields.io/badge/deps-zero-success">
   <img alt="License" src="https://img.shields.io/badge/license-MIT-blue">
@@ -100,7 +100,7 @@ The credentials file on *this* machine isn't being refreshed. Two common causes:
 Not yet — it tracks subscription limits (Pro/Max plans). API cost tracking is on the roadmap.
 
 **Does it work on KDE / other desktops?**
-No, it's a GNOME Shell extension. GNOME 42–48 are supported.
+No, it's a GNOME Shell extension. GNOME 42–50 are supported.
 
 **Is this an official Anthropic project?**
 No. It's an independent open-source tool that uses your own credentials, locally.
