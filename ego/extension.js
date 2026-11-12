@@ -186,9 +186,9 @@ class ClaudeUsageIndicator extends PanelMenu.Button {
 
         // Plans without a 5-hour limit (e.g. Ultra) return five_hour: null;
         // show the weekly figure instead of a permanent "—%"
-        const noSession = data.five_hour === null && w !== null;
+        const noSession = data.five_hour === null;
 
-        this._label.set_text(noSession ? `✻ W ${w}%` : `✻ ${s ?? '—'}%`);
+        this._label.set_text(noSession && w !== null ? `✻ W ${w}%` : `✻ ${s ?? '—'}%`);
         const worst = Math.max(s ?? 0, w ?? 0);
         if (worst >= 90)
             this._label.set_style('color: #ff5544; font-weight: bold;');
