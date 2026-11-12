@@ -2,7 +2,7 @@
 
 // Legacy build for GNOME Shell 42-44 (pre-ESM extensions).
 // GNOME 42 runs libsoup 2.4 inside the shell process; 43+ use libsoup 3,
-// and mixing the two in one process aborts — so pin the right one upfront.
+// and mixing the two in one process aborts, so pin the right one upfront.
 const Config = imports.misc.config;
 const SHELL_MAJOR = parseInt(Config.PACKAGE_VERSION.split('.')[0], 10);
 imports.gi.versions.Soup = SHELL_MAJOR >= 43 ? '3.0' : '2.4';
@@ -49,8 +49,8 @@ class ClaudeUsageIndicator extends PanelMenu.Button {
         this._pendingTag = null;
         this._notifiedTag = null;
 
-        this._sessionItem = new PopupMenu.PopupMenuItem('Session (5h): —', {reactive: false});
-        this._weekItem = new PopupMenu.PopupMenuItem('Week: —', {reactive: false});
+        this._sessionItem = new PopupMenu.PopupMenuItem('Session (5h): …', {reactive: false});
+        this._weekItem = new PopupMenu.PopupMenuItem('Week: …', {reactive: false});
         this._opusItem = new PopupMenu.PopupMenuItem('', {reactive: false});
         this._sonnetItem = new PopupMenu.PopupMenuItem('', {reactive: false});
         this._statusItem = new PopupMenu.PopupMenuItem('', {reactive: false});
@@ -159,8 +159,8 @@ class ClaudeUsageIndicator extends PanelMenu.Button {
                     // renova o arquivo (outra máquina, API key, CONFIG_DIR…)
                     const stale = expiresAt && Date.now() - expiresAt > 3600000;
                     this._onFailure(stale
-                        ? 'credentials stale — run claude in a terminal'
-                        : 'token expired — open Claude Code');
+                        ? 'credentials stale, run claude in a terminal'
+                        : 'token expired, open Claude Code');
                     return;
                 }
                 if (status === 429) {
@@ -200,7 +200,7 @@ class ClaudeUsageIndicator extends PanelMenu.Button {
         if (this._lastGood)
             this._label.set_style('color: #888888;');
         else
-            this._label.set_text('✻ —');
+            this._label.set_text('✻ ?');
 
         const mins = Math.max(1, Math.round(wait / 60));
         this._statusItem.label.set_text(`⚠ ${why} · retrying in ${mins} min`);
@@ -240,12 +240,12 @@ class ClaudeUsageIndicator extends PanelMenu.Button {
     _offerUpdate(tag) {
         this._pendingTag = tag;
         this._updateState = 'available';
-        this._updateItem.label.set_text(`⬆ ${tag} available — click to update`);
+        this._updateItem.label.set_text(`⬆ ${tag} available, click to update`);
         this._updateItem.visible = true;
         if (this._notifiedTag !== tag) {
             this._notifiedTag = tag;
             Main.notify('Simple Claude Usage',
-                `Version ${tag} available — click ✻ in the top bar to update.`);
+                `Version ${tag} available. Click ✻ in the top bar to update.`);
         }
     }
 
@@ -273,12 +273,12 @@ class ClaudeUsageIndicator extends PanelMenu.Button {
                     GLib.file_set_contents(`${this._path}/metadata.json`,
                         JSON.stringify(remoteMeta, null, 2) + '\n');
                     this._updateState = 'downloaded';
-                    this._updateItem.label.set_text('✓ Updated — restart GNOME Shell to apply');
+                    this._updateItem.label.set_text('✓ Updated, restart GNOME Shell to apply');
                     Main.notify('Simple Claude Usage',
                         `Updated to ${tag}. Restart GNOME Shell to apply (X11: Alt+F2 → r).`);
                 } catch (e) {
                     this._updateState = 'failed';
-                    this._updateItem.label.set_text('⚠ Download failed — click to open GitHub');
+                    this._updateItem.label.set_text('⚠ Download failed, click to open GitHub');
                 }
             });
         });
@@ -306,7 +306,11 @@ class ClaudeUsageIndicator extends PanelMenu.Button {
         const s = pct(five.utilization);
         const w = pct(week.utilization);
 
-        this._label.set_text(`✻ ${s !== null ? s : '—'}%`);
+        // Contas sem a janela de 5h (five_hour: null) mostram o limite
+        // semanal na barra no lugar da sessão
+        const hasSession = s !== null;
+        const main = hasSession ? s : w;
+        this._label.set_text(main !== null ? `✻ ${main}%` : '✻ ?');
         const worst = Math.max(s || 0, w || 0);
         if (worst >= 90)
             this._label.set_style('color: #ff5544; font-weight: bold;');
@@ -315,10 +319,13 @@ class ClaudeUsageIndicator extends PanelMenu.Button {
         else
             this._label.set_style(null);
 
-        this._sessionItem.label.set_text(
-            `Session (5h): ${s !== null ? s : '—'}%  ·  resets ${this._fmtReset(five.resets_at)}`);
+        this._sessionItem.visible = hasSession;
+        if (hasSession) {
+            this._sessionItem.label.set_text(
+                `Session (5h): ${s}%  ·  resets ${this._fmtReset(five.resets_at)}`);
+        }
         this._weekItem.label.set_text(
-            `Week: ${w !== null ? w : '—'}%  ·  resets ${this._fmtReset(week.resets_at)}`);
+            `Week: ${w !== null ? `${w}%` : 'n/a'}  ·  resets ${this._fmtReset(week.resets_at)}`);
 
         const opus = data.seven_day_opus ? data.seven_day_opus.utilization : null;
         this._opusItem.visible = opus !== null && opus !== undefined;

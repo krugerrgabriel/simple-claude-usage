@@ -2,7 +2,7 @@
 
 <p align="center">
   <strong>把 <a href="https://claude.com/claude-code">Claude</a> 套餐用量常驻显示在 GNOME 顶栏。</strong><br>
-  不再被"已达上限"打个措手不及 — 5 小时会话和每周限额一目了然。
+  不再被"已达上限"打个措手不及。5 小时会话和每周限额一目了然。
 </p>
 
 <p align="center">
@@ -34,11 +34,11 @@
 
 - 🛑 正写到兴头上，突然弹出 *"已达上限，将于…重置"*
 - 🔮 完全不知道自己离每周限额还有多远，直到为时已晚
-- ⌨️ 想查一下？得在 Claude Code 里输入 `/usage` — 每次都要
+- ⌨️ 想查一下？得在 Claude Code 里输入 `/usage`，每次都要
 
 **Simple Claude Usage** 把答案放在你的视线本来就在的地方：顶栏。
 
-> **✻ 18%** — 就这么简单。点击即可查看详情。
+> **✻ 18%**，就这么简单。点击即可查看详情。
 
 ---
 
@@ -48,7 +48,7 @@
 |---|---|
 | 📊 **常驻显示** | 5 小时会话用量直接显示在顶栏，每分钟更新 |
 | 🖱️ **一键查看详情** | 会话百分比、每周百分比、各模型限额及精确重置时间 |
-| 🌡️ **颜色预警** | 70% 变橙色，90% 变加粗红色 — 不再措手不及 |
+| 🌡️ **颜色预警** | 70% 变橙色，90% 变加粗红色，不再措手不及 |
 | 🔐 **无需重新登录** | 复用你机器上已有的 Claude Code 凭据 |
 | 🪶 **零依赖** | 约 200 行纯 GJS。无 Python、无 Node、无守护进程、无遥测 |
 | 🔄 **自动恢复** | 令牌过期？它会提示你。打开 Claude Code 即自动修复 |
@@ -83,20 +83,23 @@ cd simple-claude-usage
 - ✅ 令牌绝不离开你的机器（仅向 `api.anthropic.com` 发起一次 HTTPS 请求，与 Claude Code 本身相同）
 - ✅ 查询用量**不消耗**任何套餐额度
 - ✅ 无需账号、无需 API 密钥、无需配置
-- ✅ 更新检查只是每天向 GitHub API 发送一次匿名请求 — 绝不涉及你的令牌
+- ✅ 更新检查只是每天向 GitHub API 发送一次匿名请求，绝不涉及你的令牌
 
 ---
 
 ## ❓ 常见问题
 
-**顶栏显示 ✻ — 和"请打开 Claude Code"。**
+**顶栏显示 ✻ ? 和"请打开 Claude Code"。**
 你的 OAuth 令牌已过期。打开一次 Claude Code，令牌会自动刷新，指示器一分钟内恢复。
 
 **我每天都用 Claude Code，却显示"credentials stale"。**
-*这台*机器的凭据文件没有被刷新。两个常见原因：你在另一台机器（SSH/WSL/容器）上使用 Claude Code，或者你的 CLI 在用 `ANTHROPIC_API_KEY` 而不是订阅进行认证 — 在 Claude Code 中用 `/status` 检查，并用 `/login` 登录账号。前者只需在本机运行一次 `claude` 即可解决。
+*这台*机器的凭据文件没有被刷新。两个常见原因：你在另一台机器（SSH/WSL/容器）上使用 Claude Code，或者你的 CLI 在用 `ANTHROPIC_API_KEY` 而不是订阅进行认证。在 Claude Code 中用 `/status` 检查，并用 `/login` 登录账号。前者只需在本机运行一次 `claude` 即可解决。
+
+**我的账号没有 5 小时限额。**
+部分套餐已不再有 5 小时会话窗口。此时顶栏会改为显示每周用量，菜单中的会话一行会隐藏。
 
 **支持 API（按量付费）而非订阅吗？**
-暂不支持 — 目前追踪订阅限额（Pro/Max 套餐）。API 成本追踪在路线图中。
+暂不支持。目前追踪订阅限额（Pro/Max 套餐）。API 成本追踪在路线图中。
 
 **支持 KDE / 其他桌面吗？**
 不支持，这是一个 GNOME Shell 扩展。支持 GNOME 42–48。
@@ -116,11 +119,11 @@ cd simple-claude-usage
 
 ## 🔗 相关项目
 
-- 🔖 [**Claude Sessions Manager**](https://github.com/krugerrgabriel/claude-sessions-manager) — 你每天使用 Claude Code 的起点：查找、命名并一键恢复任何对话。
+- 🔖 [**Claude Sessions Manager**](https://github.com/krugerrgabriel/claude-sessions-manager)：你每天使用 Claude Code 的起点：查找、命名并一键恢复任何对话。
 
 ---
 
 <p align="center">
-  由 <a href="https://github.com/krugerrgabriel">Gabriel Krüger</a> 用 ✻ 打造 —
+  由 <a href="https://github.com/krugerrgabriel">Gabriel Krüger</a> 用 ✻ 打造。
   如果它让你躲过了一次突如其来的限流，<strong>请留下一颗 ⭐</strong>！
 </p>

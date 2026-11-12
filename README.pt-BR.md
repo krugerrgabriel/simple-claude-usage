@@ -2,7 +2,7 @@
 
 <p align="center">
   <strong>Seu consumo do <a href="https://claude.com/claude-code">Claude</a>, sempre visível na barra superior do GNOME.</strong><br>
-  Nunca mais seja pego de surpresa pelo "limite atingido" — veja a sessão de 5h e o limite semanal num relance.
+  Nunca mais seja pego de surpresa pelo "limite atingido". Veja a sessão de 5h e o limite semanal num relance.
 </p>
 
 <p align="center">
@@ -34,11 +34,11 @@ Se você usa **Claude Code**, **Claude Pro** ou **Claude Max**, conhece a sensa�
 
 - 🛑 Você está no flow e de repente: *"limite atingido, reseta às…"*
 - 🔮 Não faz ideia de quão perto está do limite semanal até ser tarde demais
-- ⌨️ Conferir significa digitar `/usage` dentro do Claude Code — toda vez
+- ⌨️ Conferir significa digitar `/usage` dentro do Claude Code, toda vez
 
 O **Simple Claude Usage** coloca essa resposta onde seus olhos já estão: na barra superior.
 
-> **✻ 18%** — só isso. Clique para ver os detalhes.
+> **✻ 18%**, só isso. Clique para ver os detalhes.
 
 ---
 
@@ -84,20 +84,23 @@ comando `/usage` usa. Nada além disso:
 - ✅ Seu token nunca sai da sua máquina (uma chamada HTTPS para `api.anthropic.com`, igual ao próprio Claude Code)
 - ✅ Consultar o consumo gasta **zero** do seu plano
 - ✅ Sem contas, sem API keys, sem configuração
-- ✅ A checagem de atualização é uma única requisição anônima por dia à API do GitHub — seu token nunca entra nela
+- ✅ A checagem de atualização é uma única requisição anônima por dia à API do GitHub. Seu token nunca entra nela
 
 ---
 
 ## ❓ Perguntas frequentes
 
-**A barra mostra ✻ — e "abra o Claude Code".**
-Seu token OAuth expirou. Abra o Claude Code uma vez — ele renova o token automaticamente e o indicador se recupera em até um minuto.
+**A barra mostra ✻ ? e "abra o Claude Code".**
+Seu token OAuth expirou. Abra o Claude Code uma vez: ele renova o token automaticamente e o indicador se recupera em até um minuto.
 
 **Uso o Claude Code todo dia, mas aparece "credentials stale".**
-O arquivo de credenciais *desta* máquina não está sendo renovado. Duas causas comuns: você usa o Claude Code em outra máquina (SSH/WSL/containers), ou o CLI autentica com `ANTHROPIC_API_KEY` em vez da assinatura — confira com `/status` dentro do Claude Code e faça `/login` com sua conta. Rodar `claude` localmente uma vez resolve o primeiro caso.
+O arquivo de credenciais *desta* máquina não está sendo renovado. Duas causas comuns: você usa o Claude Code em outra máquina (SSH/WSL/containers), ou o CLI autentica com `ANTHROPIC_API_KEY` em vez da assinatura. Confira com `/status` dentro do Claude Code e faça `/login` com sua conta. Rodar `claude` localmente uma vez resolve o primeiro caso.
+
+**Minha conta não tem limite de 5h.**
+Alguns planos não têm mais a janela de sessão de 5 horas. Nesse caso a barra mostra o uso semanal, e a linha da sessão some do menu.
 
 **Funciona com a API (pagamento por uso) em vez de assinatura?**
-Ainda não — ele acompanha os limites de assinatura (planos Pro/Max). Rastreio de custo da API está no roadmap.
+Ainda não. Ele acompanha os limites de assinatura (planos Pro/Max). Rastreio de custo da API está no roadmap.
 
 **Funciona no KDE / outros desktops?**
 Não, é uma extensão do GNOME Shell. GNOME 42–48 são suportados.
@@ -117,11 +120,11 @@ Não. É uma ferramenta open-source independente que usa suas próprias credenci
 
 ## 🔗 Relacionados
 
-- 🔖 [**Claude Sessions Manager**](https://github.com/krugerrgabriel/claude-sessions-manager) — seu ponto de partida diário para o Claude Code: encontre, nomeie e retome qualquer conversa em um clique.
+- 🔖 [**Claude Sessions Manager**](https://github.com/krugerrgabriel/claude-sessions-manager: seu ponto de partida diário para o Claude Code: encontre, nomeie e retome qualquer conversa em um clique.
 
 ---
 
 <p align="center">
-  Feito com ✻ por <a href="https://github.com/krugerrgabriel">Gabriel Krüger</a> —
+  Feito com ✻ por <a href="https://github.com/krugerrgabriel">Gabriel Krüger</a>.
   se isso te salvou de um rate limit surpresa, <strong>deixe uma ⭐</strong>!
 </p>

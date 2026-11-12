@@ -2,7 +2,7 @@
 
 <p align="center">
   <strong>Dein <a href="https://claude.com/claude-code">Claude</a>-Verbrauch, immer sichtbar in der GNOME-Topbar.</strong><br>
-  Nie wieder vom "Limit erreicht" überrascht werden — 5-Stunden-Session und Wochenlimit auf einen Blick.
+  Nie wieder vom "Limit erreicht" überrascht werden: 5-Stunden-Session und Wochenlimit auf einen Blick.
 </p>
 
 <p align="center">
@@ -33,12 +33,12 @@
 Wenn du **Claude Code**, **Claude Pro** oder **Claude Max** nutzt, kennst du das:
 
 - 🛑 Du bist im Flow und plötzlich: *"Limit erreicht, Reset um…"*
-- 🔮 Du weißt nicht, wie nah du am Wochenlimit bist — bis es zu spät ist
-- ⌨️ Nachsehen heißt: `/usage` in Claude Code eintippen — jedes Mal
+- 🔮 Du weißt nicht, wie nah du am Wochenlimit bist, bis es zu spät ist
+- ⌨️ Nachsehen heißt: `/usage` in Claude Code eintippen, jedes Mal
 
 **Simple Claude Usage** bringt die Antwort dahin, wo deine Augen ohnehin sind: in die Topbar.
 
-> **✻ 18%** — das ist alles. Klick drauf für die Details.
+> **✻ 18%**, das ist alles. Klick drauf für die Details.
 
 ---
 
@@ -48,7 +48,7 @@ Wenn du **Claude Code**, **Claude Pro** oder **Claude Max** nutzt, kennst du das
 |---|---|
 | 📊 **Immer sichtbar** | Verbrauch der 5-Stunden-Session direkt in der Topbar, minütlich aktualisiert |
 | 🖱️ **Details per Klick** | Session-%, Wochen-%, Limits pro Modell und exakte Reset-Zeiten im Dropdown |
-| 🌡️ **Farbwarnungen** | Orange ab 70 %, fett rot ab 90 % — keine Überraschungen mehr |
+| 🌡️ **Farbwarnungen** | Orange ab 70 %, fett rot ab 90 %, keine Überraschungen mehr |
 | 🔐 **Kein neuer Login** | Nutzt die Claude-Code-Anmeldedaten, die bereits auf deinem Rechner liegen |
 | 🪶 **Null Abhängigkeiten** | ~200 Zeilen pures GJS. Kein Python, kein Node, keine Daemons, keine Telemetrie |
 | 🔄 **Selbstheilend** | Token abgelaufen? Es sagt dir Bescheid. Claude Code öffnen genügt |
@@ -84,20 +84,23 @@ Endpoint** ab wie der `/usage`-Befehl. Sonst nichts:
 - ✅ Dein Token verlässt nie deinen Rechner (ein HTTPS-Call zu `api.anthropic.com`, wie bei Claude Code selbst)
 - ✅ Die Abfrage verbraucht **nichts** von deinem Plan
 - ✅ Keine Konten, keine API-Keys, keine Konfiguration
-- ✅ Der Update-Check ist eine einzige anonyme Anfrage pro Tag an die GitHub-API — dein Token ist nie beteiligt
+- ✅ Der Update-Check ist eine einzige anonyme Anfrage pro Tag an die GitHub-API. Dein Token ist nie beteiligt
 
 ---
 
 ## ❓ FAQ
 
-**Die Bar zeigt ✻ — und "Claude Code öffnen".**
-Dein OAuth-Token ist abgelaufen. Öffne Claude Code einmal — das Token wird automatisch erneuert und die Anzeige erholt sich innerhalb einer Minute.
+**Die Bar zeigt ✻ ? und "Claude Code öffnen".**
+Dein OAuth-Token ist abgelaufen. Öffne Claude Code einmal: das Token wird automatisch erneuert und die Anzeige erholt sich innerhalb einer Minute.
 
 **Ich nutze Claude Code täglich, aber es heißt "credentials stale".**
-Die Anmeldedaten-Datei auf *diesem* Rechner wird nicht erneuert. Zwei häufige Ursachen: du nutzt Claude Code auf einer anderen Maschine (SSH/WSL/Container), oder deine CLI authentifiziert sich mit einem `ANTHROPIC_API_KEY` statt mit deinem Abo — prüfe mit `/status` in Claude Code und melde dich mit `/login` an. Einmal lokal `claude` ausführen behebt den ersten Fall.
+Die Anmeldedaten-Datei auf *diesem* Rechner wird nicht erneuert. Zwei häufige Ursachen: du nutzt Claude Code auf einer anderen Maschine (SSH/WSL/Container), oder deine CLI authentifiziert sich mit einem `ANTHROPIC_API_KEY` statt mit deinem Abo. Prüfe mit `/status` in Claude Code und melde dich mit `/login` an. Einmal lokal `claude` ausführen behebt den ersten Fall.
+
+**Mein Konto hat kein 5-Stunden-Limit.**
+Manche Pläne haben das 5-Stunden-Sessionfenster nicht mehr. Dann zeigt die Bar stattdessen deine Wochennutzung, und die Session-Zeile verschwindet aus dem Menü.
 
 **Funktioniert es mit der API (Pay-as-you-go) statt Abo?**
-Noch nicht — es verfolgt Abo-Limits (Pro/Max-Pläne). API-Kosten-Tracking steht auf der Roadmap.
+Noch nicht. Es verfolgt Abo-Limits (Pro/Max-Pläne). API-Kosten-Tracking steht auf der Roadmap.
 
 **Läuft es unter KDE / anderen Desktops?**
 Nein, es ist eine GNOME-Shell-Extension. GNOME 42–48 werden unterstützt.
@@ -117,11 +120,11 @@ Nein. Ein unabhängiges Open-Source-Tool, das deine eigenen Anmeldedaten lokal n
 
 ## 🔗 Verwandt
 
-- 🔖 [**Claude Sessions Manager**](https://github.com/krugerrgabriel/claude-sessions-manager) — dein täglicher Startpunkt für Claude Code: Konversationen finden, benennen und mit einem Klick fortsetzen.
+- 🔖 [**Claude Sessions Manager**](https://github.com/krugerrgabriel/claude-sessions-manager: dein täglicher Startpunkt für Claude Code: Konversationen finden, benennen und mit einem Klick fortsetzen.
 
 ---
 
 <p align="center">
-  Gemacht mit ✻ von <a href="https://github.com/krugerrgabriel">Gabriel Krüger</a> —
+  Gemacht mit ✻ von <a href="https://github.com/krugerrgabriel">Gabriel Krüger</a>.
   wenn dich das vor einem überraschenden Rate-Limit gerettet hat: <strong>lass ein ⭐ da</strong>!
 </p>

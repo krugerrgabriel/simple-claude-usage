@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Simple Claude Usage — uninstaller
+# Simple Claude Usage uninstaller
 set -euo pipefail
 
 UUID="simple-claude-usage@krugerrgabriel.github.io"

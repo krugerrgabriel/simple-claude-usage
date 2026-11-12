@@ -2,7 +2,7 @@
 
 <p align="center">
   <strong>Your <a href="https://claude.com/claude-code">Claude</a> plan usage, always visible in the GNOME top bar.</strong><br>
-  Never get surprised by "limit reached" again — see your 5-hour session and weekly limits at a glance.
+  Never get surprised by "limit reached" again. See your 5-hour session and weekly limits at a glance.
 </p>
 
 <p align="center">
@@ -34,11 +34,11 @@ If you use **Claude Code**, **Claude Pro** or **Claude Max**, you know the feeli
 
 - 🛑 You're deep in flow and suddenly hit *"limit reached, resets at…"*
 - 🔮 You have no idea how close you are to the weekly cap until it's too late
-- ⌨️ Checking means typing `/usage` inside Claude Code — every single time
+- ⌨️ Checking means typing `/usage` inside Claude Code, every single time
 
 **Simple Claude Usage** puts that answer where your eyes already are: the top bar.
 
-> **✻ 18%** — that's it. Click it for the details.
+> **✻ 18%**. That's it. Click it for the details.
 
 ---
 
@@ -48,7 +48,7 @@ If you use **Claude Code**, **Claude Pro** or **Claude Max**, you know the feeli
 |---|---|
 | 📊 **Always visible** | Current 5-hour session usage right in the top bar, updated every minute |
 | 🖱️ **One-click details** | Session %, weekly %, per-model limits and exact reset times in a dropdown |
-| 🌡️ **Color warnings** | Turns orange at 70% and bold red at 90% — you'll never be caught off guard |
+| 🌡️ **Color warnings** | Turns orange at 70% and bold red at 90%, so you'll never be caught off guard |
 | 🔐 **No new login** | Reuses the Claude Code credentials already on your machine |
 | 🪶 **Zero dependencies** | ~200 lines of vanilla GJS. No Python, no Node, no daemons, no telemetry |
 | 🔄 **Self-healing** | Token expired? It tells you. Opening Claude Code fixes it automatically |
@@ -84,20 +84,23 @@ The extension reads the OAuth token that Claude Code already stores in
 - ✅ Your token never leaves your machine (one HTTPS call to `api.anthropic.com`, same as Claude Code itself)
 - ✅ Checking usage consumes **zero** of your plan
 - ✅ No accounts, no API keys, no configuration
-- ✅ The update check is a single anonymous request a day to the GitHub API — your token is never involved
+- ✅ The update check is a single anonymous request a day to the GitHub API. Your token is never involved
 
 ---
 
 ## ❓ FAQ
 
-**The bar shows ✻ — and "open Claude Code".**
-Your OAuth token expired. Open Claude Code once — it refreshes the token automatically and the indicator recovers within a minute.
+**The bar shows ✻ ? and "open Claude Code".**
+Your OAuth token expired. Open Claude Code once: it refreshes the token automatically and the indicator recovers within a minute.
 
 **I use Claude Code every day, but it says "credentials stale".**
-The credentials file on *this* machine isn't being refreshed. Two common causes: you use Claude Code on another machine (SSH/WSL/containers), or your CLI authenticates with an `ANTHROPIC_API_KEY` instead of your subscription — check with `/status` inside Claude Code and `/login` with your account. Running `claude` locally once fixes the first case.
+The credentials file on *this* machine isn't being refreshed. Two common causes: you use Claude Code on another machine (SSH/WSL/containers), or your CLI authenticates with an `ANTHROPIC_API_KEY` instead of your subscription. Check with `/status` inside Claude Code and `/login` with your account. Running `claude` locally once fixes the first case.
+
+**My account has no 5-hour limit.**
+Some plans no longer have the 5-hour session window. In that case the bar shows your weekly usage instead, and the session line is hidden from the menu.
 
 **Does it work with the API (pay-as-you-go) instead of a subscription?**
-Not yet — it tracks subscription limits (Pro/Max plans). API cost tracking is on the roadmap.
+Not yet. It tracks subscription limits (Pro/Max plans). API cost tracking is on the roadmap.
 
 **Does it work on KDE / other desktops?**
 No, it's a GNOME Shell extension. GNOME 42–50 are supported.
@@ -117,11 +120,11 @@ No. It's an independent open-source tool that uses your own credentials, locally
 
 ## 🔗 Related
 
-- 🔖 [**Claude Sessions Manager**](https://github.com/krugerrgabriel/claude-sessions-manager) — your daily starting point for Claude Code: find, name and resume any conversation in one click.
+- 🔖 [**Claude Sessions Manager**](https://github.com/krugerrgabriel/claude-sessions-manager: your daily starting point for Claude Code: find, name and resume any conversation in one click.
 
 ---
 
 <p align="center">
-  Made with ✻ by <a href="https://github.com/krugerrgabriel">Gabriel Krüger</a> —
-  if this saved you from a surprise rate limit, <strong>leave a ⭐</strong>!
+  Made with ✻ by <a href="https://github.com/krugerrgabriel">Gabriel Krüger</a>.
+  If this saved you from a surprise rate limit, <strong>leave a ⭐</strong>!
 </p>

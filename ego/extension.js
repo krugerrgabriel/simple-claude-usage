@@ -32,8 +32,8 @@ class ClaudeUsageIndicator extends PanelMenu.Button {
         this._failures = 0;
         this._lastGood = null;
 
-        this._sessionItem = new PopupMenu.PopupMenuItem('Session (5h): —', {reactive: false});
-        this._weekItem = new PopupMenu.PopupMenuItem('Week: —', {reactive: false});
+        this._sessionItem = new PopupMenu.PopupMenuItem('Session (5h): …', {reactive: false});
+        this._weekItem = new PopupMenu.PopupMenuItem('Week: …', {reactive: false});
         this._opusItem = new PopupMenu.PopupMenuItem('', {reactive: false});
         this._sonnetItem = new PopupMenu.PopupMenuItem('', {reactive: false});
         this._statusItem = new PopupMenu.PopupMenuItem('', {reactive: false});
@@ -115,8 +115,8 @@ class ClaudeUsageIndicator extends PanelMenu.Button {
                     // machine, API-key auth, custom CLAUDE_CONFIG_DIR…)
                     const stale = expiresAt && Date.now() - expiresAt > 3600000;
                     this._onFailure(stale
-                        ? 'credentials stale — run claude in a terminal'
-                        : 'token expired — open Claude Code');
+                        ? 'credentials stale, run claude in a terminal'
+                        : 'token expired, open Claude Code');
                     return;
                 }
                 if (status === 429) {
@@ -156,7 +156,7 @@ class ClaudeUsageIndicator extends PanelMenu.Button {
         if (this._lastGood)
             this._label.set_style('color: #888888;');
         else
-            this._label.set_text('✻ —');
+            this._label.set_text('✻ ?');
 
         const mins = Math.max(1, Math.round(wait / 60));
         this._statusItem.label.set_text(`⚠ ${why} · retrying in ${mins} min`);
@@ -184,7 +184,11 @@ class ClaudeUsageIndicator extends PanelMenu.Button {
         const s = pct(five.utilization);
         const w = pct(week.utilization);
 
-        this._label.set_text(`✻ ${s ?? '—'}%`);
+        // Accounts without the 5-hour window (five_hour: null) show the
+        // weekly limit on the bar instead of the session
+        const hasSession = s !== null;
+        const main = hasSession ? s : w;
+        this._label.set_text(main !== null ? `✻ ${main}%` : '✻ ?');
         const worst = Math.max(s ?? 0, w ?? 0);
         if (worst >= 90)
             this._label.set_style('color: #ff5544; font-weight: bold;');
@@ -193,10 +197,13 @@ class ClaudeUsageIndicator extends PanelMenu.Button {
         else
             this._label.set_style(null);
 
-        this._sessionItem.label.set_text(
-            `Session (5h): ${s ?? '—'}%  ·  resets ${this._fmtReset(five.resets_at)}`);
+        this._sessionItem.visible = hasSession;
+        if (hasSession) {
+            this._sessionItem.label.set_text(
+                `Session (5h): ${s}%  ·  resets ${this._fmtReset(five.resets_at)}`);
+        }
         this._weekItem.label.set_text(
-            `Week: ${w ?? '—'}%  ·  resets ${this._fmtReset(week.resets_at)}`);
+            `Week: ${w !== null ? `${w}%` : 'n/a'}  ·  resets ${this._fmtReset(week.resets_at)}`);
 
         const opus = data.seven_day_opus?.utilization;
         this._opusItem.visible = opus !== null && opus !== undefined;

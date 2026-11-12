@@ -2,7 +2,7 @@
 
 <p align="center">
   <strong>Tu consumo de <a href="https://claude.com/claude-code">Claude</a>, siempre visible en la barra superior de GNOME.</strong><br>
-  No vuelvas a sorprenderte con "límite alcanzado" — mira tu sesión de 5 h y tu límite semanal de un vistazo.
+  No vuelvas a sorprenderte con "límite alcanzado". Mira tu sesión de 5 h y tu límite semanal de un vistazo.
 </p>
 
 <p align="center">
@@ -34,11 +34,11 @@ Si usas **Claude Code**, **Claude Pro** o **Claude Max**, conoces la sensación:
 
 - 🛑 Estás concentrado y de repente: *"límite alcanzado, se reinicia a las…"*
 - 🔮 No tienes idea de qué tan cerca estás del límite semanal hasta que es demasiado tarde
-- ⌨️ Comprobarlo significa escribir `/usage` dentro de Claude Code — cada vez
+- ⌨️ Comprobarlo significa escribir `/usage` dentro de Claude Code, cada vez
 
 **Simple Claude Usage** pone esa respuesta donde ya están tus ojos: la barra superior.
 
-> **✻ 18%** — eso es todo. Haz clic para ver los detalles.
+> **✻ 18%**, eso es todo. Haz clic para ver los detalles.
 
 ---
 
@@ -84,20 +84,23 @@ el comando `/usage`. Nada más:
 - ✅ Tu token nunca sale de tu máquina (una llamada HTTPS a `api.anthropic.com`, igual que el propio Claude Code)
 - ✅ Consultar el consumo gasta **cero** de tu plan
 - ✅ Sin cuentas, sin API keys, sin configuración
-- ✅ La comprobación de actualizaciones es una única petición anónima al día a la API de GitHub — tu token nunca participa
+- ✅ La comprobación de actualizaciones es una única petición anónima al día a la API de GitHub. Tu token nunca participa
 
 ---
 
 ## ❓ Preguntas frecuentes
 
-**La barra muestra ✻ — y "abre Claude Code".**
-Tu token OAuth caducó. Abre Claude Code una vez — renueva el token automáticamente y el indicador se recupera en un minuto.
+**La barra muestra ✻ ? y "abre Claude Code".**
+Tu token OAuth caducó. Abre Claude Code una vez: renueva el token automáticamente y el indicador se recupera en un minuto.
 
 **Uso Claude Code a diario, pero dice "credentials stale".**
-El archivo de credenciales de *esta* máquina no se está renovando. Dos causas comunes: usas Claude Code en otra máquina (SSH/WSL/contenedores), o tu CLI se autentica con una `ANTHROPIC_API_KEY` en lugar de tu suscripción — compruébalo con `/status` dentro de Claude Code y haz `/login` con tu cuenta. Ejecutar `claude` localmente una vez arregla el primer caso.
+El archivo de credenciales de *esta* máquina no se está renovando. Dos causas comunes: usas Claude Code en otra máquina (SSH/WSL/contenedores), o tu CLI se autentica con una `ANTHROPIC_API_KEY` en lugar de tu suscripción. Compruébalo con `/status` dentro de Claude Code y haz `/login` con tu cuenta. Ejecutar `claude` localmente una vez arregla el primer caso.
+
+**Mi cuenta no tiene límite de 5 h.**
+Algunos planes ya no tienen la ventana de sesión de 5 horas. En ese caso la barra muestra tu uso semanal y la línea de la sesión desaparece del menú.
 
 **¿Funciona con la API (pago por uso) en lugar de suscripción?**
-Todavía no — rastrea los límites de suscripción (planes Pro/Max). El seguimiento de costes de la API está en el roadmap.
+Todavía no. Rastrea los límites de suscripción (planes Pro/Max). El seguimiento de costes de la API está en el roadmap.
 
 **¿Funciona en KDE / otros escritorios?**
 No, es una extensión de GNOME Shell. Se soporta GNOME 42–48.
@@ -117,11 +120,11 @@ No. Es una herramienta open-source independiente que usa tus propias credenciale
 
 ## 🔗 Relacionados
 
-- 🔖 [**Claude Sessions Manager**](https://github.com/krugerrgabriel/claude-sessions-manager) — tu punto de partida diario para Claude Code: encuentra, nombra y retoma cualquier conversación con un clic.
+- 🔖 [**Claude Sessions Manager**](https://github.com/krugerrgabriel/claude-sessions-manager: tu punto de partida diario para Claude Code: encuentra, nombra y retoma cualquier conversación con un clic.
 
 ---
 
 <p align="center">
-  Hecho con ✻ por <a href="https://github.com/krugerrgabriel">Gabriel Krüger</a> —
+  Hecho con ✻ por <a href="https://github.com/krugerrgabriel">Gabriel Krüger</a>.
   si esto te salvó de un rate limit sorpresa, <strong>¡deja una ⭐!</strong>
 </p>

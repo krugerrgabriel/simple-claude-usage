@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Simple Claude Usage — installer
+# Simple Claude Usage installer
 # Copies the extension into the user's GNOME Shell extensions folder and enables it.
 set -euo pipefail
 
@@ -7,7 +7,7 @@ UUID="simple-claude-usage@krugerrgabriel.github.io"
 SRC_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DEST_DIR="$HOME/.local/share/gnome-shell/extensions/$UUID"
 
-echo "✻ Simple Claude Usage — installer"
+echo "✻ Simple Claude Usage installer"
 echo
 
 # Sanity checks -------------------------------------------------------------
@@ -32,7 +32,7 @@ fi
 if [ ! -f "$HOME/.claude/.credentials.json" ]; then
     echo "⚠ ~/.claude/.credentials.json not found."
     echo "  Install Claude Code and log in first: https://claude.com/claude-code"
-    echo "  The extension will show '—' until you do."
+    echo "  The extension will show '?' until you do."
     echo
 fi
 

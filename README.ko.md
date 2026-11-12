@@ -2,7 +2,7 @@
 
 <p align="center">
   <strong><a href="https://claude.com/claude-code">Claude</a> 플랜 사용량을 GNOME 상단 바에 항상 표시.</strong><br>
-  "한도 도달"에 더 이상 당황하지 마세요 — 5시간 세션과 주간 한도를 한눈에.
+  "한도 도달"에 더 이상 당황하지 마세요. 5시간 세션과 주간 한도를 한눈에.
 </p>
 
 <p align="center">
@@ -34,11 +34,11 @@
 
 - 🛑 한창 몰입 중인데 갑자기 *"한도 도달, 재설정 시각은…"*
 - 🔮 주간 한도에 얼마나 가까운지, 너무 늦기 전까지는 알 수 없음
-- ⌨️ 확인하려면 Claude Code 안에서 `/usage`를 입력 — 매번
+- ⌨️ 확인하려면 Claude Code 안에서 `/usage`를 입력, 매번
 
 **Simple Claude Usage**는 그 답을 시선이 이미 머무는 곳, 상단 바에 둡니다.
 
-> **✻ 18%** — 그게 전부입니다. 클릭하면 자세히 볼 수 있어요.
+> **✻ 18%**, 그게 전부입니다. 클릭하면 자세히 볼 수 있어요.
 
 ---
 
@@ -48,7 +48,7 @@
 |---|---|
 | 📊 **항상 표시** | 5시간 세션 사용량을 상단 바에 표시, 매분 갱신 |
 | 🖱️ **클릭 한 번으로 상세 보기** | 세션 %, 주간 %, 모델별 한도, 정확한 재설정 시각 |
-| 🌡️ **색상 경고** | 70%부터 주황색, 90%부터 굵은 빨간색 — 더 이상 기습은 없습니다 |
+| 🌡️ **색상 경고** | 70%부터 주황색, 90%부터 굵은 빨간색, 더 이상 기습은 없습니다 |
 | 🔐 **새 로그인 불필요** | 이미 기기에 있는 Claude Code 자격 증명을 재사용 |
 | 🪶 **의존성 제로** | 순수 GJS 약 200줄. Python·Node·데몬·텔레메트리 없음 |
 | 🔄 **자가 복구** | 토큰 만료? 알려줍니다. Claude Code를 열면 자동으로 해결 |
@@ -84,20 +84,23 @@ cd simple-claude-usage
 - ✅ 토큰은 절대 기기를 떠나지 않습니다 (Claude Code와 동일한 `api.anthropic.com`으로의 HTTPS 호출 한 번뿐)
 - ✅ 사용량 조회는 플랜을 **전혀** 소모하지 않습니다
 - ✅ 계정·API 키·설정 불필요
-- ✅ 업데이트 확인은 GitHub API로의 하루 한 번 익명 요청뿐 — 토큰은 전혀 사용되지 않습니다
+- ✅ 업데이트 확인은 GitHub API로의 하루 한 번 익명 요청뿐. 토큰은 전혀 사용되지 않습니다
 
 ---
 
 ## ❓ FAQ
 
-**바에 ✻ — 와 "Claude Code를 여세요"가 표시됩니다.**
+**바에 ✻ ? 와 "Claude Code를 여세요"가 표시됩니다.**
 OAuth 토큰이 만료됐습니다. Claude Code를 한 번 열면 토큰이 자동 갱신되고 표시기는 1분 안에 복구됩니다.
 
 **매일 Claude Code를 쓰는데 "credentials stale"이라고 나옵니다.**
-*이* 컴퓨터의 자격 증명 파일이 갱신되지 않고 있습니다. 흔한 원인 두 가지: 다른 컴퓨터(SSH/WSL/컨테이너)에서 Claude Code를 사용 중이거나, CLI가 구독 대신 `ANTHROPIC_API_KEY`로 인증 중입니다 — Claude Code에서 `/status`로 확인하고 `/login`으로 로그인하세요. 전자는 이 컴퓨터에서 `claude`를 한 번 실행하면 해결됩니다.
+*이* 컴퓨터의 자격 증명 파일이 갱신되지 않고 있습니다. 흔한 원인 두 가지: 다른 컴퓨터(SSH/WSL/컨테이너)에서 Claude Code를 사용 중이거나, CLI가 구독 대신 `ANTHROPIC_API_KEY`로 인증 중입니다. Claude Code에서 `/status`로 확인하고 `/login`으로 로그인하세요. 전자는 이 컴퓨터에서 `claude`를 한 번 실행하면 해결됩니다.
+
+**제 계정에는 5시간 한도가 없어요.**
+일부 플랜에는 5시간 세션 창이 없습니다. 이 경우 바에 주간 사용량이 표시되고 메뉴의 세션 줄은 숨겨집니다.
 
 **구독 대신 API(종량제)도 지원하나요?**
-아직입니다 — 현재는 구독 한도(Pro/Max 플랜)를 추적합니다. API 비용 추적은 로드맵에 있습니다.
+아직입니다. 현재는 구독 한도(Pro/Max 플랜)를 추적합니다. API 비용 추적은 로드맵에 있습니다.
 
 **KDE나 다른 데스크톱에서도 되나요?**
 아니요, GNOME Shell 확장입니다. GNOME 42–48을 지원합니다.
@@ -117,11 +120,11 @@ OAuth 토큰이 만료됐습니다. Claude Code를 한 번 열면 토큰이 자�
 
 ## 🔗 관련 프로젝트
 
-- 🔖 [**Claude Sessions Manager**](https://github.com/krugerrgabriel/claude-sessions-manager) — Claude Code의 매일의 출발점: 대화를 찾고, 이름 붙이고, 클릭 한 번으로 재개.
+- 🔖 [**Claude Sessions Manager**](https://github.com/krugerrgabriel/claude-sessions-manager: Claude Code의 매일의 출발점: 대화를 찾고, 이름 붙이고, 클릭 한 번으로 재개.
 
 ---
 
 <p align="center">
-  <a href="https://github.com/krugerrgabriel">Gabriel Krüger</a>가 ✻을 담아 만들었습니다 —
+  <a href="https://github.com/krugerrgabriel">Gabriel Krüger</a>가 ✻을 담아 만들었습니다.
   갑작스러운 한도 초과에서 구해줬다면 <strong>⭐ 하나 부탁드려요</strong>!
 </p>
