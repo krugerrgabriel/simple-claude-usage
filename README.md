@@ -46,7 +46,7 @@ If you use **Claude Code**, **Claude Pro** or **Claude Max**, you know the feeli
 
 | | |
 |---|---|
-| 📊 **Always visible** | Current 5-hour session usage right in the top bar, updated every minute |
+| 📊 **Always visible** | Current 5-hour session usage right in the top bar (weekly usage, shown as **✻ W 22%**, on plans without a 5-hour limit), updated every minute |
 | 🖱️ **One-click details** | Session %, weekly %, per-model limits and exact reset times in a dropdown |
 | 🌡️ **Color warnings** | Turns orange at 70% and bold red at 90% — you'll never be caught off guard |
 | 🔐 **No new login** | Reuses the Claude Code credentials already on your machine |
