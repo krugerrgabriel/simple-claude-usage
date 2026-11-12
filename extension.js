@@ -294,7 +294,11 @@ class ClaudeUsageIndicator extends PanelMenu.Button {
         const s = pct(five.utilization);
         const w = pct(week.utilization);
 
-        this._label.set_text(`✻ ${s ?? '—'}%`);
+        // Plans without a 5-hour limit (e.g. Ultra) return five_hour: null;
+        // show the weekly figure instead of a permanent "—%"
+        const noSession = data.five_hour === null && w !== null;
+
+        this._label.set_text(noSession ? `✻ W ${w}%` : `✻ ${s ?? '—'}%`);
         const worst = Math.max(s ?? 0, w ?? 0);
         if (worst >= 90)
             this._label.set_style('color: #ff5544; font-weight: bold;');
@@ -303,8 +307,9 @@ class ClaudeUsageIndicator extends PanelMenu.Button {
         else
             this._label.set_style(null);
 
-        this._sessionItem.label.set_text(
-            `Session (5h): ${s ?? '—'}%  ·  resets ${this._fmtReset(five.resets_at)}`);
+        this._sessionItem.label.set_text(noSession
+            ? 'Session (5h): no limit on this plan'
+            : `Session (5h): ${s ?? '—'}%  ·  resets ${this._fmtReset(five.resets_at)}`);
         this._weekItem.label.set_text(
             `Week: ${w ?? '—'}%  ·  resets ${this._fmtReset(week.resets_at)}`);
 
